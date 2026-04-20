@@ -9,6 +9,7 @@ import com.westh.alwaysstats.stats.DirectionStat;
 import com.westh.alwaysstats.stats.EntityCountStat;
 import com.westh.alwaysstats.stats.FpsStat;
 import com.westh.alwaysstats.stats.LightLevelStat;
+import com.westh.alwaysstats.stats.MinecraftDayStat;
 import com.westh.alwaysstats.stats.StatProvider;
 import com.westh.alwaysstats.stats.TargetStat;
 import com.westh.alwaysstats.stats.TimeOfDayStat;
@@ -39,7 +40,8 @@ public class StatsRenderer {
         new TargetStat(),
         new TimeOfDayStat(),
         new LastDeathStat(),
-        new EntityCountStat()
+        new EntityCountStat(),
+        new MinecraftDayStat()
     );
 
     public static List<StatProvider> getAllStats() {
@@ -63,11 +65,9 @@ public class StatsRenderer {
             return;
         }
 
-        // Get font scale from config (use custom scale for CUSTOM position)
         float scale = config.corner == ScreenCorner.CUSTOM ? config.customScale : config.fontSize.getScale();
         int lineHeight = Math.round(BASE_LINE_HEIGHT * scale);
 
-        // Calculate dimensions at the scaled size
         int maxWidth = 0;
         for (Component line : lines) {
             maxWidth = Math.max(maxWidth, Math.round(client.font.width(line) * scale));
@@ -99,7 +99,7 @@ public class StatsRenderer {
                 x = config.customX;
                 y = config.customY;
             }
-            default -> { // TOP_LEFT
+            default -> {
                 x = MARGIN;
                 y = MARGIN;
             }
@@ -108,20 +108,16 @@ public class StatsRenderer {
         int boxX = x - PADDING;
         int boxY = y - PADDING;
 
-        // Draw background at screen coordinates (no scaling) if enabled
         if (config.showBackground) {
             guiGraphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, BACKGROUND_COLOR);
         }
 
-        // Check if text should be right-aligned
         boolean rightAligned = config.alignRight;
 
-        // Draw text with scaling applied using JOML Matrix3x2fStack (Minecraft 1.21+ API)
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x, y);
         guiGraphics.pose().scale(scale, scale);
 
-        // maxWidth at scale 1.0 for text positioning
         int unscaledMaxWidth = Math.round(maxWidth / scale);
 
         int currentY = 0;
@@ -138,10 +134,6 @@ public class StatsRenderer {
         guiGraphics.pose().popMatrix();
     }
 
-    /**
-     * Calculate the position for a given corner setting.
-     * Returns int[2] with {x, y}.
-     */
     public static int[] calculatePosition(Minecraft client, ScreenCorner corner) {
         StatsConfig config = StatsConfig.get();
         float scale = config.fontSize.getScale();
@@ -180,7 +172,7 @@ public class StatsRenderer {
                 x = config.customX;
                 y = config.customY;
             }
-            default -> { // TOP_LEFT
+            default -> {
                 x = MARGIN;
                 y = MARGIN;
             }
@@ -188,17 +180,10 @@ public class StatsRenderer {
         return new int[]{x, y};
     }
 
-    /**
-     * Render a preview of the stats at a specific position with a given scale.
-     * Returns PreviewResult with width, height, and stat bounds for hit detection.
-     */
     public static PreviewResult renderPreview(GuiGraphics guiGraphics, Minecraft client, int x, int y, float scale) {
         return renderPreview(guiGraphics, client, x, y, scale, null);
     }
 
-    /**
-     * Render a preview with optional highlighted stat (for drag feedback).
-     */
     public static PreviewResult renderPreview(GuiGraphics guiGraphics, Minecraft client, int x, int y, float scale, String highlightedKey) {
         List<Component> lines = getDisplayLines(client);
         List<String> statKeys = getEnabledStatKeys(client);
@@ -221,30 +206,23 @@ public class StatsRenderer {
         int boxX = x - PADDING;
         int boxY = y - PADDING;
 
-        // Draw background if enabled
         if (config.showBackground) {
             guiGraphics.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, BACKGROUND_COLOR);
         }
 
-        // Draw border to show draggable area
         guiGraphics.fill(boxX, boxY, boxX + boxWidth, boxY + 1, 0xFFFFFFFF);
         guiGraphics.fill(boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
         guiGraphics.fill(boxX, boxY, boxX + 1, boxY + boxHeight, 0xFFFFFFFF);
         guiGraphics.fill(boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
 
-        // Draw resize handle in bottom-right corner
         int handleSize = 6;
         int handleX = boxX + boxWidth - handleSize;
         int handleY = boxY + boxHeight - handleSize;
-        guiGraphics.fill(handleX, handleY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFF00); // Yellow handle
+        guiGraphics.fill(handleX, handleY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFF00);
 
-        // Check if text should be right-aligned
         boolean rightAligned = config.alignRight;
-
-        // maxWidth at scale 1.0 for text positioning
         int unscaledMaxWidth = Math.round(maxWidth / scale);
 
-        // Build stat bounds for hit detection
         List<StatBounds> statBounds = new ArrayList<>();
         int currentYOffset = 0;
         for (int i = 0; i < lines.size(); i++) {
@@ -254,7 +232,6 @@ public class StatsRenderer {
             currentYOffset += lineHeight;
         }
 
-        // Draw highlight behind the dragged stat
         if (highlightedKey != null) {
             for (StatBounds bounds : statBounds) {
                 if (bounds.key().equals(highlightedKey)) {
@@ -264,7 +241,6 @@ public class StatsRenderer {
             }
         }
 
-        // Draw text with scaling
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x, y);
         guiGraphics.pose().scale(scale, scale);
@@ -278,7 +254,6 @@ public class StatsRenderer {
                 int lineWidth = client.font.width(line);
                 textX = unscaledMaxWidth - lineWidth;
             }
-            // Use yellow tint for the highlighted/dragged stat
             int color = (highlightedKey != null && key.equals(highlightedKey)) ? 0xFFFFFF55 : TEXT_COLOR;
             guiGraphics.drawString(client.font, line, textX, currentY, color);
             currentY += BASE_LINE_HEIGHT;
@@ -293,12 +268,10 @@ public class StatsRenderer {
         List<Component> lines = new ArrayList<>();
         StatsConfig config = StatsConfig.get();
 
-        // Iterate in configured order
         for (String key : config.statOrder) {
             if (!config.enabledStats.contains(key)) {
                 continue;
             }
-
             StatProvider provider = getStatByKey(key);
             if (provider != null) {
                 Component component = provider.getDisplayComponent(client);
@@ -319,7 +292,6 @@ public class StatsRenderer {
             if (!config.enabledStats.contains(key)) {
                 continue;
             }
-
             StatProvider provider = getStatByKey(key);
             if (provider != null) {
                 Component component = provider.getDisplayComponent(client);
