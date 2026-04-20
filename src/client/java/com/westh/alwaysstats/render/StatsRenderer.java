@@ -6,6 +6,7 @@ import com.westh.alwaysstats.config.StatsConfig;
 import com.westh.alwaysstats.stats.BiomeStat;
 import com.westh.alwaysstats.stats.CoordStat;
 import com.westh.alwaysstats.stats.DirectionStat;
+import com.westh.alwaysstats.stats.EntityCountStat;
 import com.westh.alwaysstats.stats.FpsStat;
 import com.westh.alwaysstats.stats.LightLevelStat;
 import com.westh.alwaysstats.stats.StatProvider;
@@ -37,7 +38,8 @@ public class StatsRenderer {
         new LightLevelStat(),
         new TargetStat(),
         new TimeOfDayStat(),
-        new LastDeathStat()
+        new LastDeathStat(),
+        new EntityCountStat()
     );
 
     public static List<StatProvider> getAllStats() {
