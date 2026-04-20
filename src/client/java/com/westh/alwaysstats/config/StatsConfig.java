@@ -26,12 +26,10 @@ public class StatsConfig implements ConfigData {
     public boolean lightLevelSplit = false;
     public boolean lastDeathAutoRefresh = false;
 
-    // Custom position and scale (used when corner == CUSTOM)
     public int customX = 5;
     public int customY = 5;
-    public float customScale = 0.75f; // Default to MEDIUM scale
+    public float customScale = 0.75f;
 
-    // Death stats per world/server
     public Map<String, DeathInfo> deathPoints = new HashMap<>();
 
     public static class DeathInfo {
@@ -74,15 +72,15 @@ public class StatsConfig implements ConfigData {
             enabledStats.add("lightLevel");
             enabledStats.add("target");
             enabledStats.add("entities");
+            enabledStats.add("mcDay");
         }
 
-        // Initialize default stat order if empty
         if (statOrder.isEmpty()) {
             statOrder.addAll(List.of("fps", "biome", "coords", "direction",
-                                      "lightLevel", "target", "timeOfDay", "lastDeath", "entities"));
+                                      "lightLevel", "target", "timeOfDay", "lastDeath",
+                                      "entities", "mcDay"));
         }
 
-        // Ensure any stats missing from statOrder are added
         for (var stat : com.westh.alwaysstats.render.StatsRenderer.getAllStats()) {
             if (!statOrder.contains(stat.getConfigKey())) {
                 statOrder.add(stat.getConfigKey());
