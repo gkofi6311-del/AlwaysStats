@@ -73,12 +73,13 @@ public class StatsConfig implements ConfigData {
             enabledStats.add("direction");
             enabledStats.add("lightLevel");
             enabledStats.add("target");
+            enabledStats.add("entities");
         }
 
         // Initialize default stat order if empty
         if (statOrder.isEmpty()) {
             statOrder.addAll(List.of("fps", "biome", "coords", "direction",
-                                      "lightLevel", "target", "timeOfDay", "lastDeath"));
+                                      "lightLevel", "target", "timeOfDay", "lastDeath", "entities"));
         }
 
         // Ensure any stats missing from statOrder are added
