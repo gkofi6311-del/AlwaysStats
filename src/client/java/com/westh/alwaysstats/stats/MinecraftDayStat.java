@@ -1,30 +1,18 @@
 package com.westh.alwaysstats.stats;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.MinecraftClient;
 
 public class MinecraftDayStat implements StatProvider {
-
+    
     @Override
-    public String getConfigKey() {
-        return "mcDay";
+    public String getLabel() {
+        return "Day";
     }
 
     @Override
-    public String getConfigName() {
-        return "Minecraft Day";
-    }
-
-    @Override
-    public String getDisplayText(Minecraft client) {
-        if (client.level == null) return null;
-        long day = client.level.getDayTime() / 24000L;
-        return "Day: " + day;
-    }
-
-    @Override
-    public Component getDisplayComponent(Minecraft client) {
-        String text = getDisplayText(client);
-        return text != null ? Component.literal(text) : null;
+    public String getValue() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world == null) return "N/A";
+        return String.valueOf(client.world.getTimeOfDay() / 24000L);
     }
 }
