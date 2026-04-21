@@ -11,6 +11,7 @@ import com.westh.alwaysstats.stats.EntityCountStat;
 import com.westh.alwaysstats.stats.FpsStat;
 import com.westh.alwaysstats.stats.LightLevelStat;
 import com.westh.alwaysstats.stats.MinecraftDayStat;
+import com.westh.alwaysstats.stats.RandomChallengeStat;
 import com.westh.alwaysstats.stats.StatProvider;
 import com.westh.alwaysstats.stats.TargetStat;
 import com.westh.alwaysstats.stats.TimeOfDayStat;
@@ -43,7 +44,8 @@ public class StatsRenderer {
         new LastDeathStat(),
         new EntityCountStat(),
         new MinecraftDayStat(),
-        new ChunkPosStat()
+        new ChunkPosStat(),
+        new RandomChallengeStat()
     );
 
     public static List<StatProvider> getAllStats() {
@@ -63,9 +65,7 @@ public class StatsRenderer {
         StatsConfig config = StatsConfig.get();
         List<Component> lines = getDisplayLines(client);
 
-        if (lines.isEmpty()) {
-            return;
-        }
+        if (lines.isEmpty()) return;
 
         float scale = config.corner == ScreenCorner.CUSTOM ? config.customScale : config.fontSize.getScale();
         int lineHeight = Math.round(BASE_LINE_HEIGHT * scale);
@@ -77,34 +77,17 @@ public class StatsRenderer {
 
         int boxWidth = maxWidth + (PADDING * 2);
         int boxHeight = (lines.size() * lineHeight) + PADDING;
-
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         ScreenCorner corner = config.corner;
         int x, y;
-
         switch (corner) {
-            case TOP_RIGHT -> {
-                x = screenWidth - maxWidth - MARGIN;
-                y = MARGIN;
-            }
-            case BOTTOM_LEFT -> {
-                x = MARGIN;
-                y = screenHeight - boxHeight - MARGIN + PADDING;
-            }
-            case BOTTOM_RIGHT -> {
-                x = screenWidth - maxWidth - MARGIN;
-                y = screenHeight - boxHeight - MARGIN + PADDING;
-            }
-            case CUSTOM -> {
-                x = config.customX;
-                y = config.customY;
-            }
-            default -> {
-                x = MARGIN;
-                y = MARGIN;
-            }
+            case TOP_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = MARGIN; }
+            case BOTTOM_LEFT -> { x = MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case CUSTOM -> { x = config.customX; y = config.customY; }
+            default -> { x = MARGIN; y = MARGIN; }
         }
 
         int boxX = x - PADDING;
@@ -115,19 +98,16 @@ public class StatsRenderer {
         }
 
         boolean rightAligned = config.alignRight;
-
         guiGraphics.pose().pushMatrix();
         guiGraphics.pose().translate(x, y);
         guiGraphics.pose().scale(scale, scale);
 
         int unscaledMaxWidth = Math.round(maxWidth / scale);
-
         int currentY = 0;
         for (Component line : lines) {
             int textX = 0;
             if (rightAligned) {
-                int lineWidth = client.font.width(line);
-                textX = unscaledMaxWidth - lineWidth;
+                textX = unscaledMaxWidth - client.font.width(line);
             }
             guiGraphics.drawString(client.font, line, textX, currentY, TEXT_COLOR);
             currentY += BASE_LINE_HEIGHT;
@@ -139,11 +119,8 @@ public class StatsRenderer {
     public static int[] calculatePosition(Minecraft client, ScreenCorner corner) {
         StatsConfig config = StatsConfig.get();
         float scale = config.fontSize.getScale();
-
         List<Component> lines = getDisplayLines(client);
-        if (lines.isEmpty()) {
-            return new int[]{MARGIN, MARGIN};
-        }
+        if (lines.isEmpty()) return new int[]{MARGIN, MARGIN};
 
         int maxWidth = 0;
         for (Component line : lines) {
@@ -152,32 +129,16 @@ public class StatsRenderer {
 
         int lineHeight = Math.round(BASE_LINE_HEIGHT * scale);
         int boxHeight = (lines.size() * lineHeight) + PADDING;
-
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         int x, y;
         switch (corner) {
-            case TOP_RIGHT -> {
-                x = screenWidth - maxWidth - MARGIN;
-                y = MARGIN;
-            }
-            case BOTTOM_LEFT -> {
-                x = MARGIN;
-                y = screenHeight - boxHeight - MARGIN + PADDING;
-            }
-            case BOTTOM_RIGHT -> {
-                x = screenWidth - maxWidth - MARGIN;
-                y = screenHeight - boxHeight - MARGIN + PADDING;
-            }
-            case CUSTOM -> {
-                x = config.customX;
-                y = config.customY;
-            }
-            default -> {
-                x = MARGIN;
-                y = MARGIN;
-            }
+            case TOP_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = MARGIN; }
+            case BOTTOM_LEFT -> { x = MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case CUSTOM -> { x = config.customX; y = config.customY; }
+            default -> { x = MARGIN; y = MARGIN; }
         }
         return new int[]{x, y};
     }
@@ -190,9 +151,7 @@ public class StatsRenderer {
         List<Component> lines = getDisplayLines(client);
         List<String> statKeys = getEnabledStatKeys(client);
 
-        if (lines.isEmpty()) {
-            return new PreviewResult(0, 0, List.of());
-        }
+        if (lines.isEmpty()) return new PreviewResult(0, 0, List.of());
 
         StatsConfig config = StatsConfig.get();
         int lineHeight = Math.round(BASE_LINE_HEIGHT * scale);
@@ -204,7 +163,6 @@ public class StatsRenderer {
 
         int boxWidth = maxWidth + (PADDING * 2);
         int boxHeight = (lines.size() * lineHeight) + PADDING;
-
         int boxX = x - PADDING;
         int boxY = y - PADDING;
 
@@ -218,9 +176,7 @@ public class StatsRenderer {
         guiGraphics.fill(boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
 
         int handleSize = 6;
-        int handleX = boxX + boxWidth - handleSize;
-        int handleY = boxY + boxHeight - handleSize;
-        guiGraphics.fill(handleX, handleY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFF00);
+        guiGraphics.fill(boxX + boxWidth - handleSize, boxY + boxHeight - handleSize, boxX + boxWidth, boxY + boxHeight, 0xFFFFFF00);
 
         boolean rightAligned = config.alignRight;
         int unscaledMaxWidth = Math.round(maxWidth / scale);
@@ -228,9 +184,7 @@ public class StatsRenderer {
         List<StatBounds> statBounds = new ArrayList<>();
         int currentYOffset = 0;
         for (int i = 0; i < lines.size(); i++) {
-            String key = statKeys.get(i);
-            int statY = boxY + PADDING + currentYOffset;
-            statBounds.add(new StatBounds(key, statY, lineHeight));
+            statBounds.add(new StatBounds(statKeys.get(i), boxY + PADDING + currentYOffset, lineHeight));
             currentYOffset += lineHeight;
         }
 
@@ -251,58 +205,41 @@ public class StatsRenderer {
         for (int i = 0; i < lines.size(); i++) {
             Component line = lines.get(i);
             String key = statKeys.get(i);
-            int textX = 0;
-            if (rightAligned) {
-                int lineWidth = client.font.width(line);
-                textX = unscaledMaxWidth - lineWidth;
-            }
+            int textX = rightAligned ? unscaledMaxWidth - client.font.width(line) : 0;
             int color = (highlightedKey != null && key.equals(highlightedKey)) ? 0xFFFFFF55 : TEXT_COLOR;
             guiGraphics.drawString(client.font, line, textX, currentY, color);
             currentY += BASE_LINE_HEIGHT;
         }
 
         guiGraphics.pose().popMatrix();
-
         return new PreviewResult(boxWidth, boxHeight, statBounds);
     }
 
     private static List<Component> getDisplayLines(Minecraft client) {
         List<Component> lines = new ArrayList<>();
         StatsConfig config = StatsConfig.get();
-
         for (String key : config.statOrder) {
-            if (!config.enabledStats.contains(key)) {
-                continue;
-            }
+            if (!config.enabledStats.contains(key)) continue;
             StatProvider provider = getStatByKey(key);
             if (provider != null) {
                 Component component = provider.getDisplayComponent(client);
-                if (component != null) {
-                    lines.add(component);
-                }
+                if (component != null) lines.add(component);
             }
         }
-
         return lines;
     }
 
     private static List<String> getEnabledStatKeys(Minecraft client) {
         List<String> keys = new ArrayList<>();
         StatsConfig config = StatsConfig.get();
-
         for (String key : config.statOrder) {
-            if (!config.enabledStats.contains(key)) {
-                continue;
-            }
+            if (!config.enabledStats.contains(key)) continue;
             StatProvider provider = getStatByKey(key);
             if (provider != null) {
                 Component component = provider.getDisplayComponent(client);
-                if (component != null) {
-                    keys.add(key);
-                }
+                if (component != null) keys.add(key);
             }
         }
-
         return keys;
     }
 }
