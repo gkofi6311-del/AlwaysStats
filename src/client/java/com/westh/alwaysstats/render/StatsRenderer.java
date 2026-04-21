@@ -4,6 +4,7 @@ import com.westh.alwaysstats.config.FontSize;
 import com.westh.alwaysstats.config.ScreenCorner;
 import com.westh.alwaysstats.config.StatsConfig;
 import com.westh.alwaysstats.stats.BiomeStat;
+import com.westh.alwaysstats.stats.ChunkPosStat;
 import com.westh.alwaysstats.stats.CoordStat;
 import com.westh.alwaysstats.stats.DirectionStat;
 import com.westh.alwaysstats.stats.EntityCountStat;
@@ -41,7 +42,8 @@ public class StatsRenderer {
         new TimeOfDayStat(),
         new LastDeathStat(),
         new EntityCountStat(),
-        new MinecraftDayStat()
+        new MinecraftDayStat(),
+        new ChunkPosStat()
     );
 
     public static List<StatProvider> getAllStats() {
