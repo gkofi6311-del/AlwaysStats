@@ -9,13 +9,18 @@ import com.westh.alwaysstats.stats.CoordStat;
 import com.westh.alwaysstats.stats.DirectionStat;
 import com.westh.alwaysstats.stats.EntityCountStat;
 import com.westh.alwaysstats.stats.FpsStat;
+import com.westh.alwaysstats.stats.LastDeathStat;
 import com.westh.alwaysstats.stats.LightLevelStat;
 import com.westh.alwaysstats.stats.MinecraftDayStat;
+import com.westh.alwaysstats.stats.MoodStat;
+import com.westh.alwaysstats.stats.OnFireWetStat;
+import com.westh.alwaysstats.stats.PingStat;
+import com.westh.alwaysstats.stats.RamStat;
+import com.westh.alwaysstats.stats.RealTimeStat;
 import com.westh.alwaysstats.stats.RandomChallengeStat;
 import com.westh.alwaysstats.stats.StatProvider;
 import com.westh.alwaysstats.stats.TargetStat;
 import com.westh.alwaysstats.stats.TimeOfDayStat;
-import com.westh.alwaysstats.stats.LastDeathStat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -34,6 +39,7 @@ public class StatsRenderer {
     public record PreviewResult(int width, int height, List<StatBounds> statBounds) {}
 
     private static final List<StatProvider> ALL_STATS = List.of(
+        // Original stats
         new FpsStat(),
         new BiomeStat(),
         new CoordStat(),
@@ -42,10 +48,17 @@ public class StatsRenderer {
         new TargetStat(),
         new TimeOfDayStat(),
         new LastDeathStat(),
+        // Added stats
         new EntityCountStat(),
         new MinecraftDayStat(),
         new ChunkPosStat(),
-        new RandomChallengeStat()
+        new RandomChallengeStat(),
+        // New stats
+        new PingStat(),
+        new RamStat(),
+        new RealTimeStat(),
+        new OnFireWetStat(),
+        new MoodStat()
     );
 
     public static List<StatProvider> getAllStats() {
@@ -54,9 +67,7 @@ public class StatsRenderer {
 
     private static StatProvider getStatByKey(String key) {
         for (StatProvider stat : ALL_STATS) {
-            if (stat.getConfigKey().equals(key)) {
-                return stat;
-            }
+            if (stat.getConfigKey().equals(key)) return stat;
         }
         return null;
     }
@@ -83,11 +94,11 @@ public class StatsRenderer {
         ScreenCorner corner = config.corner;
         int x, y;
         switch (corner) {
-            case TOP_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = MARGIN; }
-            case BOTTOM_LEFT -> { x = MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
-            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
-            case CUSTOM -> { x = config.customX; y = config.customY; }
-            default -> { x = MARGIN; y = MARGIN; }
+            case TOP_RIGHT    -> { x = screenWidth - maxWidth - MARGIN;  y = MARGIN; }
+            case BOTTOM_LEFT  -> { x = MARGIN;                           y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN;  y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case CUSTOM       -> { x = config.customX;                   y = config.customY; }
+            default           -> { x = MARGIN;                           y = MARGIN; }
         }
 
         int boxX = x - PADDING;
@@ -105,10 +116,7 @@ public class StatsRenderer {
         int unscaledMaxWidth = Math.round(maxWidth / scale);
         int currentY = 0;
         for (Component line : lines) {
-            int textX = 0;
-            if (rightAligned) {
-                textX = unscaledMaxWidth - client.font.width(line);
-            }
+            int textX = rightAligned ? unscaledMaxWidth - client.font.width(line) : 0;
             guiGraphics.drawString(client.font, line, textX, currentY, TEXT_COLOR);
             currentY += BASE_LINE_HEIGHT;
         }
@@ -134,11 +142,11 @@ public class StatsRenderer {
 
         int x, y;
         switch (corner) {
-            case TOP_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = MARGIN; }
-            case BOTTOM_LEFT -> { x = MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
-            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN; y = screenHeight - boxHeight - MARGIN + PADDING; }
-            case CUSTOM -> { x = config.customX; y = config.customY; }
-            default -> { x = MARGIN; y = MARGIN; }
+            case TOP_RIGHT    -> { x = screenWidth - maxWidth - MARGIN;  y = MARGIN; }
+            case BOTTOM_LEFT  -> { x = MARGIN;                           y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case BOTTOM_RIGHT -> { x = screenWidth - maxWidth - MARGIN;  y = screenHeight - boxHeight - MARGIN + PADDING; }
+            case CUSTOM       -> { x = config.customX;                   y = config.customY; }
+            default           -> { x = MARGIN;                           y = MARGIN; }
         }
         return new int[]{x, y};
     }
@@ -161,7 +169,7 @@ public class StatsRenderer {
             maxWidth = Math.max(maxWidth, Math.round(client.font.width(line) * scale));
         }
 
-        int boxWidth = maxWidth + (PADDING * 2);
+        int boxWidth  = maxWidth + (PADDING * 2);
         int boxHeight = (lines.size() * lineHeight) + PADDING;
         int boxX = x - PADDING;
         int boxY = y - PADDING;
