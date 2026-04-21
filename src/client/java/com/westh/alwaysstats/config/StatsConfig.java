@@ -74,12 +74,13 @@ public class StatsConfig implements ConfigData {
             enabledStats.add("entities");
             enabledStats.add("mcDay");
             enabledStats.add("chunkPos");
+            enabledStats.add("randomChallenge");
         }
 
         if (statOrder.isEmpty()) {
             statOrder.addAll(List.of("fps", "biome", "coords", "chunkPos", "direction",
                                       "lightLevel", "target", "timeOfDay", "lastDeath",
-                                      "entities", "mcDay"));
+                                      "entities", "mcDay", "randomChallenge"));
         }
 
         for (var stat : com.westh.alwaysstats.render.StatsRenderer.getAllStats()) {
