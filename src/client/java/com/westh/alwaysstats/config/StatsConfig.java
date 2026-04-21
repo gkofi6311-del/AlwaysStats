@@ -73,10 +73,11 @@ public class StatsConfig implements ConfigData {
             enabledStats.add("target");
             enabledStats.add("entities");
             enabledStats.add("mcDay");
+            enabledStats.add("chunkPos");
         }
 
         if (statOrder.isEmpty()) {
-            statOrder.addAll(List.of("fps", "biome", "coords", "direction",
+            statOrder.addAll(List.of("fps", "biome", "coords", "chunkPos", "direction",
                                       "lightLevel", "target", "timeOfDay", "lastDeath",
                                       "entities", "mcDay"));
         }
